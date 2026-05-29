@@ -1,1 +1,479 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jogo da Agricultura 🚜</title>
 
+<style>
+    *{
+        margin:0;
+        padding:0;
+        box-sizing:border-box;
+    }
+
+    body{
+        overflow:hidden;
+        font-family:Arial, Helvetica, sans-serif;
+        background:#87CEEB;
+    }
+
+    canvas{
+        display:block;
+    }
+
+    .hud{
+        position:absolute;
+        top:10px;
+        left:10px;
+        background:rgba(255,255,255,0.85);
+        padding:12px;
+        border-radius:12px;
+        font-size:20px;
+        font-weight:bold;
+        z-index:10;
+    }
+
+    .controls{
+        position:absolute;
+        bottom:10px;
+        left:10px;
+        background:rgba(255,255,255,0.85);
+        padding:10px;
+        border-radius:10px;
+        z-index:10;
+    }
+</style>
+</head>
+<body>
+
+<div class="hud">
+    🌽 Colheitas: <span id="score">0</span><br>
+    ⛽ Combustível: <span id="fuel">100</span>%
+</div>
+
+<div class="controls">
+    ⬅️➡️ ou A/D para mover o caminhão
+</div>
+
+<canvas id="game"></canvas>
+
+<script>
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+// =======================
+// VARIÁVEIS
+// =======================
+
+let score = 0;
+let fuel = 100;
+let gameOver = false;
+
+const keys = {};
+
+const truck = {
+    x: 100,
+    y: canvas.height - 180,
+    width: 180,
+    height: 80,
+    speed: 6
+};
+
+const crops = [];
+const rainDrops = [];
+
+// =======================
+// PLANTAÇÕES
+// =======================
+
+function createCrops(){
+
+    crops.length = 0;
+
+    for(let i=0; i<18; i++){
+
+        crops.push({
+            x: 350 + i * 200,
+            y: canvas.height - 120,
+            collected:false
+        });
+    }
+}
+
+createCrops();
+
+// =======================
+// CHUVA
+// =======================
+
+for(let i=0; i<250; i++){
+
+    rainDrops.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        length: 10 + Math.random() * 20,
+        speed: 4 + Math.random() * 4
+    });
+}
+
+// =======================
+// TECLADO
+// =======================
+
+window.addEventListener("keydown", (e)=>{
+    keys[e.key] = true;
+});
+
+window.addEventListener("keyup", (e)=>{
+    keys[e.key] = false;
+});
+
+// =======================
+// ATUALIZAÇÃO
+// =======================
+
+function update(){
+
+    if(gameOver) return;
+
+    // Movimento
+    if((keys["ArrowRight"] || keys["d"]) && fuel > 0){
+        truck.x += truck.speed;
+        fuel -= 0.03;
+    }
+
+    if((keys["ArrowLeft"] || keys["a"]) && fuel > 0){
+        truck.x -= truck.speed;
+        fuel -= 0.03;
+    }
+
+    // Limites
+    if(truck.x < 0){
+        truck.x = 0;
+    }
+
+    // Reinicia cenário infinito
+    if(truck.x > canvas.width + 100){
+
+        truck.x = -200;
+
+        createCrops();
+    }
+
+    // Colheita
+    crops.forEach(crop=>{
+
+        if(
+            !crop.collected &&
+            truck.x + truck.width > crop.x &&
+            truck.x < crop.x + 20
+        ){
+
+            crop.collected = true;
+            score++;
+
+            // combustível recompensa
+            fuel += 2;
+
+            if(fuel > 100){
+                fuel = 100;
+            }
+
+            document.getElementById("score").innerText = score;
+            document.getElementById("fuel").innerText = Math.floor(fuel);
+        }
+    });
+
+    // combustível acaba
+    if(fuel <= 0){
+        fuel = 0;
+        gameOver = true;
+    }
+
+    document.getElementById("fuel").innerText = Math.floor(fuel);
+}
+
+// =======================
+// DESENHOS
+// =======================
+
+function drawSky(){
+
+    ctx.fillStyle = "#87CEEB";
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+}
+
+function drawSun(){
+
+    ctx.beginPath();
+    ctx.arc(120,100,50,0,Math.PI*2);
+    ctx.fillStyle = "yellow";
+    ctx.fill();
+}
+
+function drawClouds(){
+
+    ctx.fillStyle = "white";
+
+    // nuvem 1
+    ctx.beginPath();
+    ctx.arc(350,100,30,0,Math.PI*2);
+    ctx.arc(390,100,40,0,Math.PI*2);
+    ctx.arc(430,100,30,0,Math.PI*2);
+    ctx.fill();
+
+    // nuvem 2
+    ctx.beginPath();
+    ctx.arc(700,150,25,0,Math.PI*2);
+    ctx.arc(730,150,35,0,Math.PI*2);
+    ctx.arc(770,150,25,0,Math.PI*2);
+    ctx.fill();
+}
+
+function drawGround(){
+
+    // grama
+    ctx.fillStyle = "#5fa83d";
+    ctx.fillRect(0, canvas.height - 100, canvas.width, 100);
+
+    // terra
+    ctx.fillStyle = "#8B5A2B";
+    ctx.fillRect(0, canvas.height - 80, canvas.width, 80);
+}
+
+function drawRain(){
+
+    ctx.strokeStyle = "rgba(180,220,255,0.5)";
+    ctx.lineWidth = 2;
+
+    rainDrops.forEach(drop=>{
+
+        ctx.beginPath();
+        ctx.moveTo(drop.x, drop.y);
+        ctx.lineTo(drop.x, drop.y + drop.length);
+        ctx.stroke();
+
+        drop.y += drop.speed;
+
+        if(drop.y > canvas.height){
+            drop.y = -20;
+            drop.x = Math.random() * canvas.width;
+        }
+    });
+}
+
+function drawCrops(){
+
+    crops.forEach(crop=>{
+
+        if(!crop.collected){
+
+            // caule
+            ctx.fillStyle = "green";
+            ctx.fillRect(crop.x + 8, crop.y - 40, 4, 40);
+
+            // milho
+            ctx.fillStyle = "gold";
+
+            ctx.beginPath();
+            ctx.ellipse(
+                crop.x + 10,
+                crop.y - 55,
+                10,
+                20,
+                0,
+                0,
+                Math.PI * 2
+            );
+
+            ctx.fill();
+
+            // folhas
+            ctx.fillStyle = "#2e8b57";
+
+            ctx.beginPath();
+            ctx.moveTo(crop.x + 10, crop.y - 20);
+            ctx.lineTo(crop.x - 10, crop.y - 5);
+            ctx.lineTo(crop.x + 10, crop.y - 5);
+            ctx.fill();
+
+            ctx.beginPath();
+            ctx.moveTo(crop.x + 10, crop.y - 25);
+            ctx.lineTo(crop.x + 25, crop.y - 10);
+            ctx.lineTo(crop.x + 10, crop.y - 10);
+            ctx.fill();
+        }
+    });
+}
+
+function drawTruck(){
+
+    // sombra
+    ctx.fillStyle = "rgba(0,0,0,0.2)";
+    ctx.fillRect(
+        truck.x + 10,
+        truck.y + 85,
+        truck.width - 20,
+        10
+    );
+
+    // corpo
+    ctx.fillStyle = "#d62828";
+    ctx.fillRect(
+        truck.x,
+        truck.y,
+        truck.width,
+        truck.height
+    );
+
+    // cabine
+    ctx.fillStyle = "#f77f00";
+    ctx.fillRect(
+        truck.x + 120,
+        truck.y - 30,
+        50,
+        50
+    );
+
+    // vidro
+    ctx.fillStyle = "#87CEEB";
+    ctx.fillRect(
+        truck.x + 130,
+        truck.y - 20,
+        25,
+        20
+    );
+
+    // colheitadeira frontal
+    ctx.fillStyle = "#777";
+
+    ctx.fillRect(
+        truck.x - 40,
+        truck.y + 10,
+        40,
+        20
+    );
+
+    // rodas
+    ctx.fillStyle = "black";
+
+    ctx.beginPath();
+    ctx.arc(
+        truck.x + 40,
+        truck.y + 80,
+        22,
+        0,
+        Math.PI * 2
+    );
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.arc(
+        truck.x + 140,
+        truck.y + 80,
+        22,
+        0,
+        Math.PI * 2
+    );
+    ctx.fill();
+
+    // centro rodas
+    ctx.fillStyle = "gray";
+
+    ctx.beginPath();
+    ctx.arc(
+        truck.x + 40,
+        truck.y + 80,
+        8,
+        0,
+        Math.PI * 2
+    );
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.arc(
+        truck.x + 140,
+        truck.y + 80,
+        8,
+        0,
+        Math.PI * 2
+    );
+    ctx.fill();
+}
+
+function drawGameOver(){
+
+    if(gameOver){
+
+        ctx.fillStyle = "rgba(0,0,0,0.6)";
+        ctx.fillRect(0,0,canvas.width,canvas.height);
+
+        ctx.fillStyle = "white";
+        ctx.font = "60px Arial";
+        ctx.textAlign = "center";
+
+        ctx.fillText(
+            "FIM DE JOGO",
+            canvas.width / 2,
+            canvas.height / 2 - 40
+        );
+
+        ctx.font = "30px Arial";
+
+        ctx.fillText(
+            "Pontuação: " + score,
+            canvas.width / 2,
+            canvas.height / 2 + 20
+        );
+
+        ctx.fillText(
+            "Recarregue a página para jogar novamente",
+            canvas.width / 2,
+            canvas.height / 2 + 80
+        );
+    }
+}
+
+// =======================
+// LOOP
+// =======================
+
+function gameLoop(){
+
+    update();
+
+    drawSky();
+    drawSun();
+    drawClouds();
+    drawGround();
+    drawRain();
+    drawCrops();
+    drawTruck();
+    drawGameOver();
+
+    requestAnimationFrame(gameLoop);
+}
+
+gameLoop();
+
+// =======================
+// RESPONSIVO
+// =======================
+
+window.addEventListener("resize", ()=>{
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    truck.y = canvas.height - 180;
+
+    createCrops();
+});
+</script>
+
+</body>
+</html>
