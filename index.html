@@ -1,848 +1,201 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Harvest Truck Simulator</title>
-
-<style>
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-}
-
-body{
-    overflow:hidden;
-    background:#87ceeb;
-    font-family:Arial, Helvetica, sans-serif;
-}
-
-canvas{
-    display:block;
-}
-
-#hud{
-    position:absolute;
-    top:10px;
-    left:10px;
-    background:rgba(0,0,0,0.6);
-    color:white;
-    padding:15px;
-    border-radius:12px;
-    font-size:18px;
-    z-index:10;
-    min-width:260px;
-}
-
-#message{
-    position:absolute;
-    top:50%;
-    left:50%;
-    transform:translate(-50%, -50%);
-    background:rgba(0,0,0,0.8);
-    color:white;
-    padding:30px;
-    border-radius:20px;
-    text-align:center;
-    display:none;
-    z-index:20;
-}
-
-button{
-    margin-top:15px;
-    padding:10px 20px;
-    border:none;
-    border-radius:10px;
-    background:#28a745;
-    color:white;
-    font-size:18px;
-    cursor:pointer;
-}
-
-button:hover{
-    background:#1f8a38;
-}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🌾 SOJA MANIA - AgroForte Peabiru</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <style>
+    body {
+      font-family: 'Comic Sans MS', 'Arial Rounded MT Bold', sans-serif;
+    }
+    .trator {
+      animation: drive 4s linear infinite;
+    }
+    @keyframes drive {
+      0% { transform: translateX(-20px); }
+      100% { transform: translateX(20px); }
+    }
+    .soja {
+      animation: bounce 2s infinite;
+    }
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-15px); }
+    }
+  </style>
 </head>
-<body>
+<body class="bg-gradient-to-b from-green-400 to-yellow-300">
 
-<div id="hud">
-🚚 Fase: <span id="level">1</span><br>
-🌽 Carga: <span id="load">0</span>/10<br>
-💰 Pontos: <span id="score">0</span><br>
-⛽ Combustível: <span id="fuel">100</span>%<br>
-❤️ Vida: <span id="life">3</span>
-</div>
+  <!-- HEADER DIVERTIDO -->
+  <header class="bg-green-700 text-white py-4 shadow-lg">
+    <div class="max-w-6xl mx-auto px-6 flex items-center justify-between">
+      <div class="flex items-center gap-4">
+        <span class="text-5xl">🚜</span>
+        <div>
+          <h1 class="text-4xl font-bold tracking-wider">SOJA MANIA</h1>
+          <p class="text-yellow-300 font-medium">AgroForte • Peabiru/PR 🌱</p>
+        </div>
+      </div>
+      <div class="text-right">
+        <p class="text-sm">Nível do Fazendeiro: <span class="font-bold text-yellow-300">PRO 🌟</span></p>
+      </div>
+    </div>
+  </header>
 
-<div id="message">
-<h1 id="messageText">Fase Completa!</h1>
-<button onclick="nextLevel()">Próxima Fase</button>
-</div>
+  <!-- HERO SUPER DIVERTIDO -->
+  <section class="text-center py-12 bg-white/30 backdrop-blur-md">
+    <div class="max-w-4xl mx-auto px-6">
+      <h2 class="text-6xl font-bold text-green-800 mb-4">
+        O PREÇO DA SOJA ESTÁ PEGANDO FOGO! 🔥🌾
+      </h2>
+      <p class="text-2xl text-green-700 mb-8">Colheita épica em Peabiru!</p>
 
-<canvas id="game"></canvas>
+      <div class="inline-block bg-white rounded-3xl shadow-2xl p-10 transform hover:scale-105 transition-all">
+        <p class="text-yellow-500 text-lg font-bold">PREÇO ATUAL DA SACOLA MÁGICA</p>
+        <p id="preco-atual" class="text-7xl font-black text-green-600 mt-3 mb-2">R$ 122,50</p>
+        <p class="text-2xl flex items-center justify-center gap-3 text-green-600">
+          <span class="text-4xl">📈</span> 
+          + R$ 1,00 hoje! 
+          <span class="text-4xl">🎉</span>
+        </p>
+      </div>
+    </div>
+  </section>
 
-<script>
+  <div class="max-w-6xl mx-auto px-6 py-10">
 
-const canvas = document.getElementById("game");
-const ctx = canvas.getContext("2d");
+    <!-- CARDS DIVERTIDOS -->
+    <div class="grid md:grid-cols-2 gap-8 mb-12">
+      
+      <!-- AgroForte -->
+      <div class="bg-white rounded-3xl shadow-xl p-8 border-4 border-green-500">
+        <div class="flex items-center gap-4 mb-6">
+          <span class="text-5xl">🏡</span>
+          <div>
+            <h3 class="text-3xl font-bold text-green-700">AgroForte Peabiru</h3>
+            <p class="text-gray-500">Sua fazenda favorita!</p>
+          </div>
+        </div>
+        <div class="space-y-6">
+          <div class="flex justify-between items-center bg-green-100 rounded-2xl p-5">
+            <span class="text-2xl">🌾 Soja Disponível</span>
+            <span class="text-4xl font-black text-green-600">R$ 122,50</span>
+          </div>
+          <div class="flex justify-between items-center bg-amber-100 rounded-2xl p-5">
+            <span class="text-2xl">🚚 Futuro (Jul/26)</span>
+            <span class="text-4xl font-black text-amber-600">R$ 128,80</span>
+          </div>
+        </div>
+      </div>
 
-        ctx.fillText(
-            "Recarregue a página para jogar novamente",
-            canvas.width / 2,
-            canvas.height / 2 + 80
-        );
+      <!-- Coamo -->
+      <div class="bg-white rounded-3xl shadow-xl p-8 border-4 border-blue-500">
+        <div class="flex items-center gap-4 mb-6">
+          <span class="text-5xl">🏢</span>
+          <div>
+            <h3 class="text-3xl font-bold text-blue-700">Coamo (Referência)</h3>
+            <p class="text-gray-500">O grande chefe da soja</p>
+          </div>
+        </div>
+        <div class="bg-blue-50 rounded-2xl p-6 text-center">
+          <p class="text-5xl font-bold text-blue-600">R$ 122,51</p>
+          <p class="text-sm mt-2 text-blue-500">Campo Mourão e região</p>
+          <p class="text-green-500 font-bold mt-4">Quase igual ao nosso! 👏</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- GRÁFICO COM ESTILO -->
+    <div class="bg-white rounded-3xl shadow-2xl p-8 mb-12">
+      <h3 class="text-3xl font-bold text-center mb-6 flex items-center justify-center gap-3">
+        📊 A Jornada da Soja <span class="text-4xl">🌱</span>
+      </h3>
+      <canvas id="priceChart" height="110"></canvas>
+    </div>
+
+    <!-- TABELA DIVERTIDA -->
+    <div class="bg-white rounded-3xl shadow-2xl overflow-hidden">
+      <table class="w-full text-lg">
+        <thead class="bg-gradient-to-r from-green-600 to-yellow-500 text-white">
+          <tr>
+            <th class="py-6 px-6 text-left">Data</th>
+            <th class="py-6 px-6 text-left">Preço AgroForte</th>
+            <th class="py-6 px-6 text-left">Coamo</th>
+            <th class="py-6 px-6 text-center">Status</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y text-gray-700" id="tabela-precos">
+          <!-- JS preenche -->
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="bg-green-900 text-white py-12 text-center">
+    <p class="text-3xl mb-4">🌾 Obrigado por plantar com a gente! 🌾</p>
+    <p class="text-xl">AgroForte Peabiru • Onde a soja vira ouro! ✨</p>
+    <p class="mt-8 text-sm">Feito com muito amor e café pelos fazendeiros de Peabiru</p>
+  </footer>
+
+  <script>
+    // Preço animado
+    let preco = 122.50;
+    const precoEl = document.getElementById('preco-atual');
+    
+    function atualizarPreco() {
+      precoEl.textContent = `R$ ${preco.toFixed(2)}`;
+      precoEl.classList.add('scale-125');
+      setTimeout(() => precoEl.classList.remove('scale-125'), 300);
     }
-}
-
-// =======================
-// LOOP
-// =======================
-
-function gameLoop(){
-
-    update();
-
-    drawSky();
-    drawSun();
-    drawClouds();
-    drawGround();
-    drawRain();
-    drawCrops();
-    drawTruck();
-    drawGameOver();
-
-    requestAnimationFrame(gameLoop);
-}
-
-gameLoop();
-
-// =======================
-// RESPONSIVO
-// =======================
-
-window.addEventListener("resize", ()=>{
-
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-
-    truck.y = canvas.height - 180;
-
-    createCrops();
-});
-</script>
-
-</body>
-</html>
-
-        ctx.fillText(
-            "Recarregue a página para jogar novamente",
-            canvas.width / 2,
-            canvas.height / 2 + 80
-        );
-    }
-}
-
-// =======================
-// LOOP
-// =======================
-
-function gameLoop(){
-
-    update();
-
-    drawSky();
-    drawSun();
-    drawClouds();
-    drawGround();
-    drawRain();
-    drawCrops();
-    drawTruck();
-    drawGameOver();
-
-    requestAnimationFrame(gameLoop);
-}
-
-gameLoop();
-
-// =======================
-// RESPONSIVO
-// =======================
-
-window.addEventListener("resize", ()=>{
-
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-
-    truck.y = canvas.height - 180;
-
-    createCrops();
-});
-</script>
-
-        ctx.fillText(
-            "Recarregue a página para jogar novamente",
-            canvas.width / 2,
-            canvas.height / 2 + 80
-        );
-    }
-}
-
-// =======================
-// LOOP
-// =======================
-
-function gameLoop(){
-
-    update();
-
-    drawSky();
-    drawSun();
-    drawClouds();
-    drawGround();
-    drawRain();
-    drawCrops();
-    drawTruck();
-    drawGameOver();
-
-    requestAnimationFrame(gameLoop);
-}
-
-gameLoop();
-
-// =======================
-// RESPONSIVO
-// =======================
-
-window.addEventListener("resize", ()=>{
-
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-
-    truck.y = canvas.height - 180;
-
-    createCrops();
-});
-</script>
-
-</body>
-</html>
-
-</body>
-</html>
-
-        ctx.fillText(
-            "Recarregue a página para jogar novamente",
-            canvas.width / 2,
-            canvas.height / 2 + 80
-        );
-    }
-}
-
-// =======================
-// LOOP
-// =======================
-
-function gameLoop(){
-
-    update();
-
-    drawSky();
-    drawSun();
-    drawClouds();
-    drawGround();
-    drawRain();
-    drawCrops();
-    drawTruck();
-    drawGameOver();
-
-    requestAnimationFrame(gameLoop);
-}
-
-gameLoop();
-
-// =======================
-// RESPONSIVO
-// =======================
-
-window.addEventListener("resize", ()=>{
-
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-
-    truck.y = canvas.height - 180;
-
-    createCrops();
-});
-</script>
-
-</body>
-</html>
-
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
-
-// =========================
-// GAME STATE
-// =========================
-
-let level = 1;
-let score = 0;
-let fuel = 100;
-let life = 3;
-let load = 0;
-
-let gameOver = false;
-let phaseComplete = false;
-
-const keys = {};
-
-const truck = {
-    x: 100,
-    y: canvas.height - 170,
-    width: 150,
-    height: 70,
-    speed: 5
-};
-
-const city = {
-    x: 3000,
-    y: canvas.height - 220,
-    width: 250,
-    height: 220
-};
-
-let crops = [];
-let obstacles = [];
-let rain = [];
-
-// =========================
-// CREATE OBJECTS
-// =========================
-
-        ctx.fillText(
-            "Recarregue a página para jogar novamente",
-            canvas.width / 2,
-            canvas.height / 2 + 80
-        );
-    }
-}
-
-// =======================
-// LOOP
-// =======================
-
-function gameLoop(){
-
-    update();
-
-    drawSky();
-    drawSun();
-    drawClouds();
-    drawGround();
-    drawRain();
-    drawCrops();
-    drawTruck();
-    drawGameOver();
-
-    requestAnimationFrame(gameLoop);
-}
-
-gameLoop();
-
-// =======================
-// RESPONSIVO
-// =======================
-
-window.addEventListener("resize", ()=>{
-
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-
-    truck.y = canvas.height - 180;
-
-    createCrops();
-});
-</script>
-
-</body>
-</html>
-
-function createLevel(){
-
-    crops = [];
-    obstacles = [];
-
-    // plantações
-    for(let i=0;i<15 + level*3;i++){
-
-        crops.push({
-            x: 500 + i * 180,
-            y: canvas.height - 120,
-            collected:false
-        });
-    }
-
-    // obstáculos
-    for(let i=0;i<8 + level*2;i++){
-
-        obstacles.push({
-            x: 700 + i * 350,
-            y: canvas.height - 115,
-            width:50,
-            height:50
-        });
-    }
-
-    city.x = 4000 + level * 1000;
-}
-
-createLevel();
-
-// =========================
-// RAIN
-// =========================
-
-for(let i=0;i<250;i++){
-
-    rain.push({
-        x:Math.random()*canvas.width,
-        y:Math.random()*canvas.height,
-        len:10+Math.random()*20,
-        speed:4+Math.random()*5
-    });
-}
-
-// =========================
-// KEYBOARD
-// =========================
-
-window.addEventListener("keydown", (e)=>{
-    keys[e.key] = true;
-});
-
-window.addEventListener("keyup", (e)=>{
-    keys[e.key] = false;
-});
-
-// =========================
-// UPDATE
-// =========================
-
-function update(){
-
-    if(gameOver || phaseComplete) return;
-
-    // MOVEMENT
-    if((keys["ArrowRight"] || keys["d"]) && fuel > 0){
-        truck.x += truck.speed;
-        fuel -= 0.03;
-    }
-
-    if((keys["ArrowLeft"] || keys["a"]) && fuel > 0){
-        truck.x -= truck.speed;
-        fuel -= 0.03;
-    }
-
-    if(truck.x < 0){
-        truck.x = 0;
-    }
-
-    // COLLECT
-    crops.forEach(crop=>{
-
-        if(
-            !crop.collected &&
-            truck.x + truck.width > crop.x &&
-            truck.x < crop.x + 30
-        ){
-
-            crop.collected = true;
-            load++;
-
-            score += 10;
-
-            if(load > 10){
-                load = 10;
-            }
-        }
+    atualizarPreco();
+
+    // Gráfico
+    new Chart(document.getElementById('priceChart'), {
+      type: 'line',
+      data: {
+        labels: ['23/05', '24/05', '25/05', '26/05', '27/05', '28/05', '29/05'],
+        datasets: [{
+          label: 'Preço da Soja',
+          data: [119.80, 120.50, 121.20, 120.90, 121.80, 122.10, 122.50],
+          borderColor: '#166534',
+          backgroundColor: 'rgba(22, 101, 52, 0.2)',
+          borderWidth: 5,
+          tension: 0.5,
+          pointRadius: 8,
+          pointHoverRadius: 12
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { display: false } }
+      }
     });
 
-    // OBSTACLES
-    obstacles.forEach(obs=>{
+    // Tabela
+    const historico = [
+      {data: "29/05/2026", agro: "122,50", coamo: "122,51", status: "🔥 Subindo!"},
+      {data: "28/05/2026", agro: "122,10", coamo: "122,30", status: "👍 Boa"},
+      {data: "27/05/2026", agro: "121,80", coamo: "121,90", status: "🚀 Subiu"},
+      {data: "26/05/2026", agro: "120,90", coamo: "121,20", status: "😅 Quase"},
+      {data: "25/05/2026", agro: "121,20", coamo: "121,40", status: "💪 Forte"},
+    ];
 
-        if(
-            truck.x + truck.width > obs.x &&
-            truck.x < obs.x + obs.width &&
-            truck.y + truck.height > obs.y
-        ){
-
-            truck.x -= 50;
-
-            fuel -= 5;
-
-            obs.x += 100;
-
-            life--;
-
-            if(life <= 0){
-                endGame();
-            }
-        }
+    let html = "";
+    historico.forEach(item => {
+      html += `
+        <tr class="hover:bg-yellow-50 transition">
+          <td class="py-6 px-6 font-medium">${item.data}</td>
+          <td class="py-6 px-6 font-bold text-green-600">R$ ${item.agro}</td>
+          <td class="py-6 px-6">R$ ${item.coamo}</td>
+          <td class="py-6 px-6 text-center text-2xl">${item.status}</td>
+        </tr>`;
     });
-
-    // DELIVERY
-    if(
-        load >= 10 &&
-        truck.x + truck.width > city.x
-    ){
-
-        phaseComplete = true;
-
-        document.getElementById("message").style.display = "block";
-
-        score += 100 * level;
-    }
-
-    // FUEL
-    if(fuel <= 0){
-        endGame();
-    }
-
-    updateHUD();
-}
-
-// =========================
-// HUD
-// =========================
-
-function updateHUD(){
-
-    document.getElementById("level").innerText = level;
-    document.getElementById("score").innerText = score;
-    document.getElementById("fuel").innerText = Math.floor(fuel);
-    document.getElementById("life").innerText = life;
-    document.getElementById("load").innerText = load;
-}
-
-// =========================
-// DRAW
-// =========================
-
-function drawSky(){
-
-    const gradient = ctx.createLinearGradient(0,0,0,canvas.height);
-
-    gradient.addColorStop(0,"#5ec9ff");
-    gradient.addColorStop(1,"#dff6ff");
-
-    ctx.fillStyle = gradient;
-    ctx.fillRect(0,0,canvas.width,canvas.height);
-}
-
-function drawSun(){
-
-    ctx.beginPath();
-    ctx.arc(120,100,50,0,Math.PI*2);
-    ctx.fillStyle = "yellow";
-    ctx.fill();
-}
-
-function drawGround(){
-
-    ctx.fillStyle = "#4c9a2a";
-    ctx.fillRect(0,canvas.height-100,canvas.width,100);
-
-    ctx.fillStyle = "#8b5a2b";
-    ctx.fillRect(0,canvas.height-80,canvas.width,80);
-}
-
-function drawRain(){
-
-    ctx.strokeStyle = "rgba(255,255,255,0.4)";
-    ctx.lineWidth = 2;
-
-    rain.forEach(r=>{
-
-        ctx.beginPath();
-        ctx.moveTo(r.x,r.y);
-        ctx.lineTo(r.x,r.y+r.len);
-        ctx.stroke();
-
-        r.y += r.speed;
-
-        if(r.y > canvas.height){
-            r.y = -20;
-            r.x = Math.random()*canvas.width;
-        }
-    });
-}
-
-function drawRoad(){
-
-    ctx.fillStyle = "#444";
-    ctx.fillRect(0,canvas.height-150,canvas.width,50);
-
-    for(let i=0;i<canvas.width;i+=60){
-
-        ctx.fillStyle = "white";
-        ctx.fillRect(i,canvas.height-128,30,5);
-    }
-}
-
-function drawCrops(){
-
-    crops.forEach(crop=>{
-
-        if(!crop.collected){
-
-            ctx.fillStyle = "green";
-            ctx.fillRect(crop.x+8,crop.y-40,4,40);
-
-            ctx.fillStyle = "gold";
-
-            ctx.beginPath();
-            ctx.ellipse(
-                crop.x+10,
-                crop.y-55,
-                10,
-                20,
-                0,
-                0,
-                Math.PI*2
-            );
-            ctx.fill();
-        }
-    });
-}
-
-function drawObstacles(){
-
-    obstacles.forEach(obs=>{
-
-        ctx.fillStyle = "#666";
-
-        ctx.fillRect(
-            obs.x,
-            obs.y,
-            obs.width,
-            obs.height
-        );
-
-        ctx.fillStyle = "#222";
-
-        ctx.fillRect(
-            obs.x+10,
-            obs.y+10,
-            30,
-            30
-        );
-    });
-}
-
-function drawCity(){
-
-    ctx.fillStyle = "#777";
-
-    ctx.fillRect(
-        city.x,
-        city.y,
-        city.width,
-        city.height
-    );
-
-    // prédios
-    for(let i=0;i<5;i++){
-
-        ctx.fillStyle = "#555";
-
-        ctx.fillRect(
-            city.x + i*45,
-            city.y - Math.random()*100,
-            35,
-            100 + Math.random()*100
-        );
-    }
-
-    ctx.fillStyle = "white";
-    ctx.font = "30px Arial";
-    ctx.fillText("CIDADE", city.x + 40, city.y - 20);
-}
-
-function drawTruck(){
-
-    // carga
-    ctx.fillStyle = "#b5651d";
-
-    ctx.fillRect(
-        truck.x + 15,
-        truck.y - load*3,
-        load*8,
-        load*3
-    );
-
-    // corpo
-    ctx.fillStyle = "#d62828";
-
-    ctx.fillRect(
-        truck.x,
-        truck.y,
-        truck.width,
-        truck.height
-    );
-
-    // cabine
-    ctx.fillStyle = "#ff8800";
-
-    ctx.fillRect(
-        truck.x + 100,
-        truck.y - 30,
-        40,
-        40
-    );
-
-    // vidro
-    ctx.fillStyle = "#87ceeb";
-
-    ctx.fillRect(
-        truck.x + 108,
-        truck.y - 20,
-        20,
-        15
-    );
-
-    // rodas
-    ctx.fillStyle = "black";
-
-    ctx.beginPath();
-    ctx.arc(truck.x+35, truck.y+70, 20, 0, Math.PI*2);
-    ctx.fill();
-
-    ctx.beginPath();
-    ctx.arc(truck.x+120, truck.y+70, 20, 0, Math.PI*2);
-    ctx.fill();
-
-    // frente colheitadeira
-    ctx.fillStyle = "gray";
-
-    ctx.fillRect(
-        truck.x - 30,
-        truck.y + 10,
-        30,
-        20
-    );
-}
-
-function drawCamera(){
-
-    ctx.save();
-
-    let cameraX = truck.x - 200;
-
-    if(cameraX < 0){
-        cameraX = 0;
-    }
-
-    ctx.translate(-cameraX,0);
-
-    drawGround();
-    drawRoad();
-    drawCrops();
-    drawObstacles();
-    drawCity();
-    drawTruck();
-
-    ctx.restore();
-}
-
-function drawGameOver(){
-
-    if(gameOver){
-
-        ctx.fillStyle = "rgba(0,0,0,0.8)";
-        ctx.fillRect(0,0,canvas.width,canvas.height);
-
-        ctx.fillStyle = "white";
-        ctx.font = "70px Arial";
-        ctx.textAlign = "center";
-
-        ctx.fillText(
-            "GAME OVER",
-            canvas.width/2,
-            canvas.height/2
-        );
-
-        ctx.font = "30px Arial";
-
-        ctx.fillText(
-            "Pontuação: " + score,
-            canvas.width/2,
-            canvas.height/2 + 60
-        );
-    }
-}
-
-// =========================
-// GAME
-// =========================
-
-function endGame(){
-
-    gameOver = true;
-}
-
-function nextLevel(){
-
-    level++;
-
-    fuel = 100;
-
-    load = 0;
-
-    truck.x = 100;
-
-    phaseComplete = false;
-
-    document.getElementById("message").style.display = "none";
-
-    createLevel();
-
-    updateHUD();
-}
-
-// =========================
-// LOOP
-// =========================
-
-function gameLoop(){
-
-    update();
-
-    drawSky();
-    drawSun();
-    drawRain();
-    drawCamera();
-    drawGameOver();
-
-    requestAnimationFrame(gameLoop);
-}
-
-updateHUD();
-gameLoop();
-
-// =========================
-// RESIZE
-// =========================
-
-window.addEventListener("resize", ()=>{
-
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-
-    truck.y = canvas.height - 170;
-});
-
-</script>
-
+    document.getElementById('tabela-precos').innerHTML = html;
+  </script>
 </body>
 </html>
